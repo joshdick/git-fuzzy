@@ -1,0 +1,25 @@
+{
+    "name": "git-fuzzy",
+    "version": "0.0.1",
+    "description": "Makes Git a little fuzzier.",
+    "keywords": [
+        "fuzzy",
+        "git"
+    ],
+    "homepage": "http://joshdick.github.io/git-fuzzy",
+    "bugs": "https://github.com/joshdick/git-fuzzy/issues",
+    "author": {
+        "name": "Josh Dick",
+        "email": "josh@joshdick.net",
+        "url": "http://joshdick.net"
+    },
+    "main": "./git-fuzzy",
+    "bin": "./git-fuzzy",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/joshdick/git-fuzzy.git"
+    },
+    "dependencies": {
+        "fuzzy": "0.1.x"
+    }
+}
