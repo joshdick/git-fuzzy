@@ -69,8 +69,8 @@ if (process.argv.length === 3 || last_arg.charAt(0) === "-") {
                 console.error("matches:");
                 for (var j = 0; j < matches.length; j++) {
                     console.error("\t" + matches[j]);
-                    process.exit(1);
                 }
+                process.exit(1);
             } else {
                exec("git rev-parse --show-toplevel",
                    createExecHandler(function(git_root) {
