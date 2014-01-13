@@ -1,6 +1,6 @@
 {
     "name": "git-fuzzy",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Makes Git a little fuzzier.",
     "keywords": [
         "fuzzy",
@@ -15,6 +15,7 @@
     },
     "main": "./git-fuzzy",
     "bin": "./git-fuzzy",
+    "preferGlobal": true,
     "repository": {
         "type": "git",
         "url": "https://github.com/joshdick/git-fuzzy.git"
