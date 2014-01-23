@@ -54,7 +54,7 @@ if (process.argv.length === 3 || last_arg.charAt(0) === "-") {
 
             for (var i = 0; i < git_status_lines.length; i++) {
                 var line = git_status_lines[i].trim();
-                line = line.substring(2); //Strip the leading status flag and separator
+                line = line.substring(2).trim(); //Strip the leading status flag and separator
                 var tokens = line.split(" -> "); //Split by arrow in case something got renamed, but wrap in an array in all cases
                 haystack = haystack.concat(tokens);
             }
