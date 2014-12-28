@@ -19,7 +19,7 @@ var handleError = function(exitCode) {
 var run = function(command, arguments, callback) {
 
     var spawnOptions = callback ? {} : { stdio: "inherit" },
-            ps = spawn(command, arguments, spawnOptions);
+                  ps = spawn(command, arguments, spawnOptions);
 
     if (callback) {
 
