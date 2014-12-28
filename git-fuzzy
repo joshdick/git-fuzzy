@@ -1,23 +1,57 @@
 #!/usr/bin/env node
 
-var createExecHandler = function(stdoutHandler) {
-    return function(error, stdout, stderr) {
-        if (stderr) {
-            console.error(stderr.trim());
-            process.exit(1);
-        } else if (error) {
-            console.error("fatal: git-fuzzy exec error:");
-            console.error(error);
-            process.exit(1);
-        } else {
-            stdoutHandler(stdout.trim());
-        }
-    };
-};
-
-var exec  = require("child_process").exec,
+var spawn = require("child_process").spawn,
     path  = require("path"),
     fuzzy = require("fuzzy");
+
+var handleError = function(exitCode) {
+    if (exitCode !== 0) {
+        console.error("fatal: git-fuzzy execution error.");
+        process.exit(exitCode);
+    }
+};
+
+//Runs a command as a child process.
+//If a callback is supplied, it will be invoked with the
+//child process's stdout once the child process terminates.
+//If no callback is supplied, the child process will use our
+//process's stderr/stdout (preserving colors, if applicable.)
+var run = function(command, arguments, callback) {
+
+    var spawnOptions = callback ? {} : { stdio: "inherit" },
+            ps = spawn(command, arguments, spawnOptions);
+
+    if (callback) {
+
+        var stderr = "",
+            stdout = "";
+
+        ps.stdout.on("data", function(data) {
+          stdout += data;
+        });
+
+        ps.stderr.on("data", function(data) {
+          stderr += data;
+        });
+
+        ps.on("close", function(exitCode) {
+            if (exitCode !== 0) {
+                if (stderr) {
+                    process.stderr.write(stderr);
+                }
+                handleError(exitCode);
+            } else {
+                callback(stdout.trim());
+            }
+        });
+
+    } else {
+
+        ps.on("close", handleError);
+
+    }
+
+};
 
 if (process.argv.length < 3) {
     console.error("usage: git fuzzy <command> [<args>]");
@@ -25,65 +59,53 @@ if (process.argv.length < 3) {
     process.exit(1);
 }
 
-var git_args       = process.argv.slice(2, -1),
+var git_args = process.argv.slice(2, -1),
     last_arg = process.argv.slice(-1).toString();
 
 //If a standalone Git command was specified, or if the last argument looks like a Git argument rather than a filename, just fall through to Git.
 if (process.argv.length === 3 || last_arg.charAt(0) === "-") {
 
-    exec("git " + process.argv.slice(2).join(" "),
-        createExecHandler(function(stdout) {
-            if (stdout) { console.log(stdout); }
-        })
-    );
+    run("git", process.argv.slice(2));
 
 //Otherwise, assume the last argument is a fuzzy filename.
 } else {
 
-    exec("git status --porcelain",
-        createExecHandler(function(stdout) {
+    run("git", ["status", "--porcelain"], function(status) {
 
-            var git_status_lines = stdout.trim().split(/\n/);
+        var git_status_lines = status.trim().split(/\n/);
 
-            if (git_status_lines.length === 0) {
-                console.error("fatal: nothing to match against; git-fuzzy only works when the working directory isn't clean.");
-                process.exit(1);
+        if (git_status_lines.length === 0) {
+            console.error("fatal: nothing to match against; git-fuzzy only works when the working directory isn't clean.");
+            process.exit(1);
+        }
+
+        var haystack = []; //A list of strings to fuzzy match against
+
+        for (var i = 0; i < git_status_lines.length; i++) {
+            var line = git_status_lines[i].trim();
+            line = line.substring(2).trim(); //Strip the leading status flag and separator
+            var tokens = line.split(" -> "); //Split by arrow in case something got renamed, but wrap in an array in all cases
+            haystack = haystack.concat(tokens);
+        }
+
+        var matches = fuzzy.filter(last_arg, haystack).map(function(el) { return el.string; });
+
+        if (matches.length === 0) {
+            console.error("fatal: no matches");
+            process.exit(1);
+        } else if (matches.length > 1) {
+            console.error("fatal: more than one match; please be more specific");
+            console.error("matches:");
+            for (var j = 0; j < matches.length; j++) {
+                console.error("\t" + matches[j]);
             }
+            process.exit(1);
+        } else {
+            run("git", ["rev-parse", "--show-toplevel"], function(git_root) {
+                run("git", [].concat(git_args, path.join(git_root, matches[0])));
+            });
+        }
 
-            var haystack = []; //A list of strings to fuzzy match against
-
-            for (var i = 0; i < git_status_lines.length; i++) {
-                var line = git_status_lines[i].trim();
-                line = line.substring(2).trim(); //Strip the leading status flag and separator
-                var tokens = line.split(" -> "); //Split by arrow in case something got renamed, but wrap in an array in all cases
-                haystack = haystack.concat(tokens);
-            }
-
-            var matches = fuzzy.filter(last_arg, haystack).map(function(el) { return el.string; });
-
-            if (matches.length === 0) {
-                console.error("fatal: no matches");
-                process.exit(1);
-            } else if (matches.length > 1) {
-                console.error("fatal: more than one match; please be more specific");
-                console.error("matches:");
-                for (var j = 0; j < matches.length; j++) {
-                    console.error("\t" + matches[j]);
-                }
-                process.exit(1);
-            } else {
-               exec("git rev-parse --show-toplevel",
-                   createExecHandler(function(git_root) {
-                       exec("git " + git_args.join(" ") + " " + '"' + path.join(git_root, matches[0]) + '"',
-                           createExecHandler(function(stdout) {
-                               if (stdout) { console.log(stdout); }
-                           })
-                       );
-                   })
-               );
-
-            }
-        })
-    );
+    });
 
 }
