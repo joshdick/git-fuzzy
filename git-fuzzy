@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 
-var spawn = require("child_process").spawn,
-    path  = require("path"),
-    fuzzy = require("fuzzy");
+var spawn  = require("child_process").spawn,
+    path   = require("path"),
+    fuzzy  = require("fuzzy"),
+    _      = require("lodash"),
+    prompt = require('prompt-sync')();
 
 var handleError = function(exitCode) {
     if (exitCode !== 0) {
@@ -94,17 +96,18 @@ if (process.argv.length === 3 || last_arg.charAt(0) === "-") {
             console.error("fatal: no matches");
             process.exit(1);
         } else if (matches.length > 1) {
-            console.error("fatal: more than one match; please be more specific");
-            console.error("matches:");
-            for (var j = 0; j < matches.length; j++) {
-                console.error("\t" + matches[j]);
+            console.log("Matching multiple files: \n" + matches.join("\n"));
+            var proceed = prompt('Do you want to proceed [y/n]?: ');
+
+            if (proceed.toLowerCase() !== "y") {
+                process.exit(1);
             }
-            process.exit(1);
-        } else {
-            run("git", ["rev-parse", "--show-toplevel"], function(git_root) {
-                run("git", [].concat(git_args, path.join(git_root, matches[0])));
-            });
         }
+
+        run("git", ["rev-parse", "--show-toplevel"], function(git_root) {
+            var paths = _.map(matches, function (match) { return path.join(git_root, match); });
+            run("git", [].concat(git_args, paths));
+        });
 
     });
 

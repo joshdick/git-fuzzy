@@ -21,6 +21,8 @@
         "url": "https://github.com/joshdick/git-fuzzy.git"
     },
     "dependencies": {
-        "fuzzy": "0.1.x"
+        "fuzzy": "0.1.x",
+        "lodash": "^4.7.0",
+        "prompt-sync": "^4.0.4"
     }
 }
