@@ -3,7 +3,6 @@
 var spawn  = require("child_process").spawn,
     path   = require("path"),
     fuzzy  = require("fuzzy"),
-    _      = require("lodash"),
     prompt = require('prompt-sync')();
 
 var handleError = function(exitCode) {
@@ -105,7 +104,7 @@ if (process.argv.length === 3 || last_arg.charAt(0) === "-") {
         }
 
         run("git", ["rev-parse", "--show-toplevel"], function(git_root) {
-            var paths = _.map(matches, function (match) { return path.join(git_root, match); });
+            var paths = matches.map(function (match) { return path.join(git_root, match); });
             run("git", [].concat(git_args, paths));
         });
 
