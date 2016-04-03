@@ -3,7 +3,7 @@
 var spawn  = require("child_process").spawn,
     path   = require("path"),
     fuzzy  = require("fuzzy"),
-    prompt = require('prompt-sync')();
+    prompt = require("prompt-sync")();
 
 var handleError = function(exitCode) {
     if (exitCode !== 0) {
@@ -95,8 +95,8 @@ if (process.argv.length === 3 || last_arg.charAt(0) === "-") {
             console.error("fatal: no matches");
             process.exit(1);
         } else if (matches.length > 1) {
-            console.log("Matching multiple files: \n" + matches.join("\n"));
-            var proceed = prompt('Do you want to proceed [y/n]?: ');
+            console.log("Matched multiple files:\n" + matches.map(function(match) { return "\t" + match; }).join("\n"));
+            var proceed = prompt("Run `git " + git_args.join(" ") + "` for all matched files [y/n]?: ");
 
             if (proceed.toLowerCase() !== "y") {
                 process.exit(1);
