@@ -1,7 +1,8 @@
 {
     "name": "git-fuzzy",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "description": "Makes Git a little fuzzier.",
+    "license": "MIT",
     "keywords": [
         "fuzzy",
         "git"
