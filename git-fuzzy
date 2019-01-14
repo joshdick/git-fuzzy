@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
-var spawn  = require("child_process").spawn,
-    path   = require("path"),
-    fuzzy  = require("fuzzy"),
-    prompt = require("prompt-sync")();
+var spawn  = require('child_process').spawn,
+	path   = require('path'),
+	fuzzy  = require('fuzzy'),
+	prompt = require('prompt-sync')();
 
 var handleError = function(exitCode) {
-    if (exitCode !== 0) {
-        console.error("fatal: git-fuzzy execution error.");
-        process.exit(exitCode);
-    }
+	if (exitCode !== 0) {
+		console.error('fatal: git-fuzzy execution error.');
+		process.exit(exitCode);
+	}
 };
 
 //Runs a command as a child process.
@@ -19,95 +19,95 @@ var handleError = function(exitCode) {
 //process's stderr/stdout (preserving colors, if applicable.)
 var run = function(command, arguments, callback) {
 
-    var spawnOptions = callback ? {} : { stdio: "inherit" },
-                  ps = spawn(command, arguments, spawnOptions);
+	var spawnOptions = callback ? {} : { stdio: 'inherit' },
+		ps = spawn(command, arguments, spawnOptions);
 
-    if (callback) {
+	if (callback) {
 
-        var stderr = "",
-            stdout = "";
+		var stderr = '',
+			stdout = '';
 
-        ps.stdout.on("data", function(data) {
-          stdout += data;
-        });
+		ps.stdout.on('data', function(data) {
+			stdout += data;
+		});
 
-        ps.stderr.on("data", function(data) {
-          stderr += data;
-        });
+		ps.stderr.on('data', function(data) {
+			stderr += data;
+		});
 
-        ps.on("close", function(exitCode) {
-            if (exitCode !== 0) {
-                if (stderr) {
-                    process.stderr.write(stderr);
-                }
-                handleError(exitCode);
-            } else {
-                callback(stdout.trim());
-            }
-        });
+		ps.on('close', function(exitCode) {
+			if (exitCode !== 0) {
+				if (stderr) {
+					process.stderr.write(stderr);
+				}
+				handleError(exitCode);
+			} else {
+				callback(stdout.trim());
+			}
+		});
 
-    } else {
+	} else {
 
-        ps.on("close", handleError);
+		ps.on('close', handleError);
 
-    }
+	}
 
 };
 
 if (process.argv.length < 3) {
-    console.error("usage: git fuzzy <command> [<args>]");
-    console.error("git-fuzzy will assume the last argument should fuzzy-match a filename that appears in the output of \"git status\".");
-    process.exit(1);
+	console.error('usage: git fuzzy <command> [<args>]');
+	console.error('git-fuzzy will assume the last argument should fuzzy-match a filename that appears in the output of "git status".');
+	process.exit(1);
 }
 
 var git_args = process.argv.slice(2, -1),
-    last_arg = process.argv.slice(-1).toString();
+	last_arg = process.argv.slice(-1).toString();
 
 //If a standalone Git command was specified, or if the last argument looks like a Git argument rather than a filename, just fall through to Git.
-if (process.argv.length === 3 || last_arg.charAt(0) === "-") {
+if (process.argv.length === 3 || last_arg.charAt(0) === '-') {
 
-    run("git", process.argv.slice(2));
+	run('git', process.argv.slice(2));
 
 //Otherwise, assume the last argument is a fuzzy filename.
 } else {
 
-    run("git", ["status", "--porcelain"], function(status) {
+	run('git', ['status', '--porcelain'], function(status) {
 
-        var git_status_lines = status.trim().split(/\n/);
+		var git_status_lines = status.trim().split(/\n/);
 
-        if (git_status_lines.length === 0) {
-            console.error("fatal: nothing to match against; git-fuzzy only works when the working directory isn't clean.");
-            process.exit(1);
-        }
+		if (git_status_lines.length === 0) {
+			console.error('fatal: nothing to match against; git-fuzzy only works when the working directory isn\'t clean.');
+			process.exit(1);
+		}
 
-        var haystack = []; //A list of strings to fuzzy match against
+		var haystack = []; //A list of strings to fuzzy match against
 
-        for (var i = 0; i < git_status_lines.length; i++) {
-            var line = git_status_lines[i].trim();
-            line = line.substring(2).trim(); //Strip the leading status flag and separator
-            var tokens = line.split(" -> "); //Split by arrow in case something got renamed, but wrap in an array in all cases
-            haystack = haystack.concat(tokens);
-        }
+		for (var i = 0; i < git_status_lines.length; i++) {
+			var line = git_status_lines[i].trim();
+			line = line.substring(2).trim(); //Strip the leading status flag and separator
+			var tokens = line.split(' -> '); //Split by arrow in case something got renamed, but wrap in an array in all cases
+			haystack = haystack.concat(tokens);
+		}
 
-        var matches = fuzzy.filter(last_arg, haystack).map(function(el) { return el.string; });
+		var matches = fuzzy.filter(last_arg, haystack).map(function(el) { return el.string; });
 
-        if (matches.length === 0) {
-            console.error("fatal: no matches");
-            process.exit(1);
-        } else if (matches.length > 1) {
-            console.log("Matched multiple files:\n" + matches.map(function(match) { return "\t" + match; }).join("\n"));
-            var proceed = prompt("Run `git " + git_args.join(" ") + "` for all matched files [y/n]?: ");
+		if (matches.length === 0) {
+			console.error('fatal: no matches');
+			process.exit(1);
+		} else if (matches.length > 1) {
+			console.log('Matched multiple files:\n' + matches.map(function(match) { return '\t' + match; }).join('\n'));
+			var proceed = prompt('Run `git ' + git_args.join(' ') + '` for all matched files [y/n]?: ');
 
-            if (proceed.toLowerCase() !== "y") {
-                process.exit(1);
-            }
-        }
+			if (proceed.toLowerCase() !== 'y') {
+				process.exit(1);
+			}
+		}
 
-        run("git", ["rev-parse", "--show-toplevel"], function(git_root) {
-            var paths = matches.map(function (match) { return path.join(git_root, match); });
-            run("git", [].concat(git_args, paths));
-        });
+		run('git', ['rev-parse', '--show-toplevel'], function(git_root) {
+			var paths = matches.map(function (match) { return path.join(git_root, match); });
+			run('git', [].concat(git_args, paths));
+		});
 
-    });
+	});
 
 }
