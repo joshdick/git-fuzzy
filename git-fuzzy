@@ -17,10 +17,10 @@ var handleError = function(exitCode) {
 //child process's stdout once the child process terminates.
 //If no callback is supplied, the child process will use our
 //process's stderr/stdout (preserving colors, if applicable.)
-var run = function(command, arguments, callback) {
+var run = function(command, cliArgs, callback) {
 
 	var spawnOptions = callback ? {} : { stdio: 'inherit' },
-		ps = spawn(command, arguments, spawnOptions);
+		ps = spawn(command, cliArgs, spawnOptions);
 
 	if (callback) {
 
