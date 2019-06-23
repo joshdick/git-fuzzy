@@ -26,7 +26,7 @@
     },
     "dependencies": {
         "fuzzy": "0.1.x",
-        "prompt-sync": "^4.0.4"
+        "prompt-sync": "^4.1.7"
     },
     "devDependencies": {
         "eslint": "^6.0.0"
