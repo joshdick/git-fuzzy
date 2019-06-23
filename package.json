@@ -29,6 +29,6 @@
         "prompt-sync": "^4.0.4"
     },
     "devDependencies": {
-        "eslint": "^5.12.0"
+        "eslint": "^6.0.0"
     }
 }
