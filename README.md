@@ -1,7 +1,5 @@
 # git-fuzzy
 
-
-
 Makes Git a little fuzzier.
 
 _by [Josh Dick](http://joshdick.net)_
