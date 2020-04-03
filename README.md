@@ -1,6 +1,6 @@
 # git-fuzzy
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/joshdick/git-fuzzy.svg)](https://greenkeeper.io/)
+
 
 Makes Git a little fuzzier.
 
