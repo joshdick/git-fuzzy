@@ -18,11 +18,13 @@
         "test": "eslint git-fuzzy"
     },
     "main": "./git-fuzzy",
-    "bin": "./git-fuzzy",
+    "bin": {
+        "git-fuzzy": "git-fuzzy"
+    },
     "preferGlobal": true,
     "repository": {
         "type": "git",
-        "url": "https://github.com/joshdick/git-fuzzy.git"
+        "url": "git+https://github.com/joshdick/git-fuzzy.git"
     },
     "dependencies": {
         "fuzzy": "0.1.x",
