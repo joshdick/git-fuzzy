@@ -1,6 +1,6 @@
 {
     "name": "git-fuzzy",
-    "version": "0.0.10",
+    "version": "0.0.11",
     "description": "Makes Git a little fuzzier.",
     "license": "MIT",
     "keywords": [
@@ -29,6 +29,6 @@
         "prompt-sync": "^4.2.0"
     },
     "devDependencies": {
-        "eslint": "^8.17.0"
+        "eslint": "^8.45.0"
     }
 }
